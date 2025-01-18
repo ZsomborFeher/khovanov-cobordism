@@ -6,7 +6,7 @@ Written by Zsombor Fehér, 2024.
 
 ## Quick Start Guide
 
-Example: Distinguishing two ribbon disks of 6_1, given as two band diagrams on the same link diagram.
+Example: Distinguishing two ribbon disks of 6<sub>1</sub>, given as two band diagrams on the same link diagram.
 
 1.  Make sure you have SciPy and NumPy installed and updated to the latest version:
     ```python
@@ -14,7 +14,7 @@ Example: Distinguishing two ribbon disks of 6_1, given as two band diagrams on t
     ```
     (Some methods require [Sage](https://www.sagemath.org/) to be installed, but tasks like this example do not.)
 
-2.  Start a Python session, copy the file `khovanov.py` to your working folder, and import that module:
+2.  Start a Python session, copy the file [khovanov.py](khovanov.py) to your working folder, and import that module:
     ```python
     from khovanov import *
     ```
