@@ -175,7 +175,7 @@ A new cobordism $C\colon L\to L$ with empty movie can be created by `C = Cobordi
 - `C.chi()` returns the Euler characteristic of the cobordism.
 - `C.map(CKH)` applies the map induced by the cobordism to `CKH` and changes it in place.
 - `C.KJ_class()` returns the Khovanov–Jacobsson class of `C` or `C.reverse()`, if one of the ends of `C` is the empty link.
-- `C.matrix()` calculates the cobordism map induced on homology in matrix form (this method needs [Sage](https://www.sagemath.org/)).
+- `C.matrix(h, q)` calculates the cobordism map induced on homology in grading $(h,q)\to (h,q+\chi(C))$ in matrix form (this method needs [Sage](https://www.sagemath.org/)).
 
 All classes support the standard `print(...)` method to display information about an object. For instance, `print(L)` outputs the adjacency structure of a `Link`, `print(C)` displays the sequence of moves in a `Cobordism` movie, and `print(CKH)` represents a `CKhElement` by showing the labels of each loop in every element of the linear combination. Additionally, `CKH.print_short()` provides a concise representation that omits printing the loops.
 
