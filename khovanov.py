@@ -8,12 +8,12 @@
 #   =================
 #   Example: Distinguishing two ribbon disks of 6_1, given as two band diagrams on the same link diagram.
 #
-#   1. Make sure you have SciPy and NumPy installed and updated to the latest version:
+#   1. Make sure you have SciPy (and NumPy) installed and updated to the latest version:
 #           pip install --upgrade scipy
 #      (Some methods require Sage to be installed, but tasks like this example do not.)
 #   2. Start a Python session, copy this file to your working folder, and import this module:
 #           from khovanov import *
-#   3. Obtain a PD code of the link, and determine how the PD code corresponds to the diagram. 
+#   3. Obtain a PD code of the link, and determine how the PD code corresponds to the diagram.
 #      Label each crossing in your diagram with its corresponding index in the PD code.
 #      Mark the 0th strand of each crossing with a dot, corresponding to the 0th element of its PD code entry.
 #      (Since this module does not have a graphical interface yet, you might find it useful to draw the link in
@@ -22,14 +22,14 @@
 #           L = Link([(9, 4, 10, 5), (5, 8, 6, 9), (11, 2, 12, 3), (3, 10, 4, 11), (1, 7, 2, 6), (7, 1, 8, 12)])
 #      You can verify that your diagram is marked correctly using print(L).
 #   5. Create the two Cobordism objects based on the band diagrams and your marking of crossings.
-#      For example, S0.band_move(-1, (0, 0), (2, 1)) represents a (-1)-twisted band, connecting the 0th crossing's
-#      0th strand to the 2nd crossing's 1st strand, positioned on the band's left side.
 #           S0 = Cobordism(L)
 #           S0.band_move(-1, (0, 0), (2, 1))
 #           S0.finish()
 #           S1 = Cobordism(L)
 #           S1.band_move(-1, (1, 2), (3, 3))
 #           S1.finish()
+#      For example, S1.band_move(-1, (1, 2), (3, 3)) represents a (-1)-twisted band, connecting the 1st crossing's
+#      2nd strand to the 3rd crossing's 3rd strand, positioned on the band's left side.
 #      You can check the resulting movie of the cobordism with print(S0).
 #   6. Calculate the Khovanov-Jacobsson classes (CKhElement objects) and compare them in homology:
 #           compare(S0.KJ_class(), S1.KJ_class())
@@ -2751,7 +2751,8 @@ class Cobordism:
     @needs_sage
     def matrix(self, h: int, q: int):
         """
-        When used within Sage, calculates the cobordism map induced on homology in matrix form.
+        When used within Sage, calculates the cobordism map induced on homology
+        in grading (h, q) -> (h, q + self.chi()) in matrix form.
         Returns ((start_group, end_group), matrix).
         """
         # calculate homology for the starting and ending link
@@ -2953,7 +2954,7 @@ class Cobordism:
         cobordism = tree[0]
         num_moves = len(cobordism.movie)
 
-        # after max_tries tries, stop exploring the full tree and just do random R3 moves
+        # after max_closest tries, stop exploring the full tree and just do random R3 moves
         if i == max_closest:
             from random import choice as random_choice
             if cobordism is self:
