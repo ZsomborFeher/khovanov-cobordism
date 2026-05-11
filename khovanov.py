@@ -713,6 +713,9 @@ class Link:
         #       |                            |
         #       i0                           |
 
+        if hasattr(self, "n_plus"):
+            del self.n_plus, self.n_minus
+
         # check that loop has only Strands and get the sign of the Crossing
         # TODO probably can simplify, assuming that the loop has no Strands?
         crossing, index = cs
@@ -764,6 +767,9 @@ class Link:
         #        |                     |
         #        |                     |
 
+        if hasattr(self, "n_plus"):
+            del self.n_plus, self.n_minus
+
         # get unique label for the new crossing
         n = len(self.crossings)
         labels = {c.label for c in self.crossings}
@@ -806,6 +812,9 @@ class Link:
         #  c2 -----/ \-----/ \----- d2            cs2 -----------
         #    k2   i2 i1   j1 j2   l2
         #            cs1
+
+        if hasattr(self, "n_plus"):
+            del self.n_plus, self.n_minus
 
         # get relevant crossings and indices
         if cs1 == cs0 + 1:
@@ -881,6 +890,9 @@ class Link:
         #   cs0 -----------                -----\ /-----\ /-----
         #                        ->            c \     d /
         #   cs1 -----------                -----/ \-----/ \-----
+
+        if hasattr(self, "n_plus"):
+            del self.n_plus, self.n_minus
 
         # get unique labels for the two new crossings
         n = len(self.crossings)
@@ -2592,8 +2604,8 @@ class CKhElement(list[LabelledSmoothing]):
         # update link
         link = self.link()
         old_order = link.crossings
-        link.crossings = new_order  # this is an assignment, so old_order is unchanged
         assert len(new_order) == len(old_order) and set(new_order) == set(old_order)
+        link.crossings = new_order  # this is an assignment, so old_order is unchanged
 
         # have to multiply those states by (-1) where the permutation restricted to the 1-smoothed crossings is odd
         odd = set()
@@ -2769,6 +2781,15 @@ class Cobordism:
         for _, generator in start_homology_generators:
             gen_copy = copy.deepcopy(generator)
             self.map(gen_copy)
+            # we reorder crossings of gen_copy to use the same order as end_chain_generators, so that to_data() works
+            new_order = []
+            for c in self.links[-1].crossings:
+                for d in gen_copy.link().crossings:
+                    if d.label == c.label:
+                        new_order.append(d)
+                        break
+            gen_copy.reorder_crossings(new_order)
+            
             image = [0] * len(end_chain_generators)
             for state in gen_copy:
                 i = end_chain_generators[state.to_data()]
@@ -2781,7 +2802,25 @@ class Cobordism:
             # add generators of homology as new columns to the differential matrix
             vectors = [v.vector(h) for (group, v) in end_homology]
             matrix_and_basis = matrix(list(differential_matrix.transpose()) + vectors).transpose()
-            solution = matrix_and_basis.solve_right(images)
+            # to get an integer solution for  matrix_and_basis * solution == images,
+            # we calculate the Smith normal form  U * matrix_and_basis * V == D
+            D, U, V = matrix_and_basis.smith_form()
+            Y = U * images
+            m, n = D.nrows(), D.ncols()
+            k = images.ncols()
+            # solve  D * Z == Y
+            Z = matrix(n, k)
+            for j in range(k):
+                for i in range(min(m, n)):
+                    d = D[i, i]
+                    if d != 0:
+                        assert Y[i, j] % d == 0
+                        Z[i, j] = Y[i, j] // d
+                    else:
+                        assert Y[i, j] == 0
+                for i in range(n, m):
+                    assert Y[i, j] == 0
+            solution = V * Z
             solution = solution[-len(end_homology):]
         else:
             solution = matrix([])
